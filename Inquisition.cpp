@@ -1,7 +1,7 @@
 //
 //  Inquisition.cpp
 //
-//  Created by Arthur Langereis on 2/18/13.
+//  by Arthur Langereis
 //  Copyright (c) 2013 logicdream. All rights reserved.
 //
 
@@ -81,24 +81,24 @@ namespace Inquisition {
 	//
 	
 	TestRun::TestRun(const std::string & label, const TestSetRef & testSet)
-		: label_(label), testSet_(testSet), curTest_(testSet_->end())
+		: label_(label), testSet_(testSet), curTest_(testSet_->end()), result_{label_}
 	{}
 	
 	void TestRun::run() {
 		for (curTest_ = testSet_->cbegin(); curTest_ < testSet_->cend(); curTest_++) {
-			//result_.testCases++;
+			checkIndex_ = 0;
 			
 			try {
 				(**curTest_)(*this);
 			}
 			catch (const std::exception & ex) {
-				error("unexpected std::exception in test body: ", &ex);
+				error("unexpected std::exception in test body", ex.what());
 			}
 			catch (const std::string & str) {
-				error("unexpected string exception in test body: " + str);
+				error("unexpected string exception in test body", str);
 			}
 			catch (const char * cp) {
-				error("unexpected c-string exception in test body: " + std::string(cp));
+				error("unexpected c-string exception in test body", cp);
 			}
 			catch (...) {
 				error("unexpected other exception in test body");
@@ -110,16 +110,16 @@ namespace Inquisition {
 		subRuns_.push_back(std::move(subRun));
 	}
 		
-	void TestRun::pass() {
-		result_.pass((*curTest_)->name());
+	void TestRun::pass(const std::string & msg, const std::string & innerMsg) {
+		result_.pass((*curTest_)->name(), msg, innerMsg);
 	}
 	
-	void TestRun::failure(const std::string & msg, const std::exception * ex) {
-		result_.failure((*curTest_)->name(), msg);
+	void TestRun::failure(const std::string & msg, const std::string & innerMsg) {
+		result_.failure((*curTest_)->name(), msg, innerMsg);
 	}
 	
-	void TestRun::error(const std::string & msg, const std::exception * ex) {
-		result_.error((*curTest_)->name(), msg, ex);
+	void TestRun::error(const std::string & msg, const std::string & innerMsg) {
+		result_.error((*curTest_)->name(), msg, innerMsg);
 	}
 
 //	void TestRun::printResult() const {
@@ -151,16 +151,16 @@ namespace Inquisition {
 	//   |_|\___||___/\__|_| \_\___||___/\__,_|_|\__|
 	//
 	
-	void TestResult::pass(const std::string & testName) {
-		
+	void TestResult::pass(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		std::cout << "PASS " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
-	void TestResult::failure(const std::string & testName, const std::string & msg, const std::exception * ex) {
-		
+	void TestResult::failure(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		std::cout << "FAIL " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
-	void TestResult::error(const std::string & testName, const std::string & msg, const std::exception * ex) {
-		
+	void TestResult::error(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		std::cout << "ERROR " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
 
@@ -176,12 +176,27 @@ namespace Inquisition {
 		set->push_back(std::unique_ptr<BasicTest>(new T(std::forward<Args>(args)...)));
 	}
 
+	template <typename T>
+	void test(TestSetRef set) {
+		set->push_back(std::unique_ptr<BasicTest>(new T()));
+	}
+	
 	void test(const std::string & name, const TestMethod & method) {
 		test<TestCase>(detail::currentSet(), name, method);
 	}
 	
 	void group(const std::string & name, const std::function<void()> & init) {
 		test<TestGroup>(detail::currentSet(), name, init);
+	}
+	
+	template <typename T, typename ...Args>
+	void ctest(Args... args) {
+		test<T>(detail::currentSet(), std::forward<Args>(args)...);
+	}
+	
+	template <typename T>
+	void ctest() {
+		test<T>(detail::currentSet());
 	}
 	
 	void run(const TestSetRef & ts) {
