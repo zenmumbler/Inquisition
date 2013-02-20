@@ -6,20 +6,22 @@
 //
 
 #include <iostream>
+#include <unordered_map>
 
 #include "Inquisition.h"
 
 using namespace Inquisition;
 
 
-class SimpleFixture {
+class SimpleFixture : Fixture {
 public:
-	
+	int x = 1;
 };
 
 
 int main() {
 	group("Inquisition", []{
+		def_fixture<SimpleFixture>("simple");
 		
 		test("for_each", [](TestRun & res){
 			std::cout << "running a test\n";
@@ -40,6 +42,10 @@ int main() {
 			res.check_gt(8, 12);
 		});
 		
+		test("fixture test", [=](TestRun & res){
+			auto & sf = fixture<SimpleFixture>("simple");
+			res.check_equal(sf.x, 1);
+		});
 	});
 	
 	runAll();

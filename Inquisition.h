@@ -12,8 +12,34 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 namespace Inquisition {
+	
+	namespace detail {
+		class FixtureBase {
+		public:
+			virtual ~FixtureBase() = default;
+			static std::unordered_map<std::string, std::unique_ptr<FixtureBase>> fixtures_;
+		};
+		
+		template <typename Fixture>
+		class FixtureHolder : public FixtureBase {
+			std::unique_ptr<Fixture> fixture_;
+		public:
+			FixtureHolder() : fixture_ { new Fixture() } {}
+			Fixture & fixture() { return *fixture_.get(); }
+		};
+	}
+	
+	class Fixture {
+	public:
+		virtual ~Fixture() = default;
+		
+		virtual void setup() {}
+		virtual void tearDown() {}
+	};
+
 	
 	class TestCase;
 	class TestRun;
@@ -23,12 +49,6 @@ namespace Inquisition {
 	
 	class BasicTest {
 		std::string name_;
-		int checkIndex_ = 0;
-		std::weak_ptr<TestRun> run_;
-		
-		void pass(const std::string & msg, const std::string & innerMsg = "");
-		void failure(const std::string & msg, const std::string & innerMsg = "");
-		void error(const std::string & msg, const std::string & innerMsg = "");
 		
 	public:
 		BasicTest(std::string name) : name_(name) {}
@@ -37,9 +57,71 @@ namespace Inquisition {
 		virtual void operator()(TestRun & res) = 0;
 		
 		const std::string & name() const { return name_; }
+	};
+
+
+	using TestPtr = std::shared_ptr<BasicTest>;
+	using TestSet = std::vector<TestPtr>;
+	using TestSetPtr = std::shared_ptr<TestSet>;
+	
+
+	class TestCase : public BasicTest {
+		TestMethod method_;
+		
+	public:
+		TestCase(std::string name, TestMethod method);
+		void operator()(TestRun & res) override;
+	};
+	
+	
+	class TestGroup : public BasicTest {
+		TestSetPtr subTests_;
+		
+	public:
+		TestGroup(std::string name, const std::function<void()> & init);
+		void operator()(TestRun & res) override;
+	};
+
+
+	class TestResult {
+		int passes_ = 0;
+		int failures_ = 0;
+		int errors_ = 0;
+		const std::string label_;
+
+	public:
+		TestResult() {}
+		TestResult(std::string label) : label_(label) {}
+
+		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+		void error(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+	};
+
+	
+	class TestRun {
+		std::string label_;
+		const TestSetPtr testSet_;
+		TestSet::const_iterator curTest_;
+		TestResult result_;
+		std::vector<TestRun> subRuns_;
+		int checkIndex_ = 0;
+		
+		void pass(const std::string & msg, const std::string & innerMsg = "");
+		void failure(const std::string & msg, const std::string & innerMsg = "");
+		void error(const std::string & msg, const std::string & innerMsg = "");
+
+	public:
+		TestRun(const std::string & label, const TestSetPtr & testSet);
+
+		const std::string & label() const { return label_; }
+		TestResult & result() { return result_; }
+		void addSubRun(TestRun subRun);
+		
+		void run();
 		
 		// -- checks
-
+		
 		template <typename Expr>
 		void checkImpl(Expr expr, const std::string & failMsg) {
 			try {
@@ -99,76 +181,25 @@ namespace Inquisition {
 			checkImpl([=] { return t <= u; }, std::to_string(t) + " was expected to be less than or equal to " + std::to_string(u));
 		}
 	};
-
-
-	using TestSet = std::vector<std::unique_ptr<BasicTest>>;
-	using TestSetRef = std::shared_ptr<TestSet>;
-	
-
-	class TestCase : public BasicTest {
-		TestMethod method_;
-		
-	public:
-		TestCase(std::string name, TestMethod method);
-		void operator()(TestRun & res) override;
-	};
 	
 	
-	class TestGroup : public BasicTest {
-		TestSetRef subTests_;
-		
-	public:
-		TestGroup(std::string name, const std::function<void()> & init);
-		void operator()(TestRun & res) override;
-	};
-
-
-	template <typename Fix>
-	class FixtureTest : public BasicTest {
-	public:
-		FixtureTest(const std::string & name) : BasicTest(name) {}
-		Fix fix;
-	};
-
-
-	class TestResult {
-		int passes_ = 0;
-		int failures_ = 0;
-		int errors_ = 0;
-		const std::string label_;
-
-	public:
-		TestResult() {}
-		TestResult(std::string label) : label_(label) {}
-
-		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-		void error(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-	};
-
+	template <typename Fixture>
+	void def_fixture(const std::string & name) {
+		detail::FixtureBase::fixtures_.emplace(name, std::unique_ptr<detail::FixtureHolder<Fixture>>{ new detail::FixtureHolder<Fixture>() });
+	}
 	
-	class TestRun {
-		std::string label_;
-		const TestSetRef testSet_;
-		TestSet::const_iterator curTest_;
-		TestResult result_;
-		std::vector<TestRun> subRuns_;
+	template <typename Fixture>
+	Fixture & fixture(const std::string & name) {
+		auto & fb = detail::FixtureBase::fixtures_.at(name);
+		if (! fb)
+			throw std::runtime_error("fb is null!");
+		return dynamic_cast<detail::FixtureHolder<Fixture>*>(fb.get())->fixture();
+	}
 
-	public:
-		TestRun(const std::string & label, const TestSetRef & testSet);
-
-		const std::string & label() const { return label_; }
-		TestResult & result() { return result_; }
-		void addSubRun(TestRun subRun);
-		
-		void run();
-	};
-	
-	
 	void test(const std::string & name, const TestMethod & method);
 	void group(const std::string & name, const std::function<void()> & init);
 
-	void run(const TestSetRef & test);
+	void run(const TestSetPtr & test);
 	void runAll();
 
 } // namespace Inquisition

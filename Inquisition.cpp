@@ -13,47 +13,34 @@ namespace Inquisition {
 	namespace detail {
 		static std::weak_ptr<TestSet> currentTestSet;
 		
-		static TestSetRef currentSet() {
-			static TestSetRef rootSet { new TestSet() };
+		static TestSetPtr currentSet() {
+			static TestSetPtr rootSet { new TestSet() };
 			if (currentTestSet.expired())
 				currentTestSet = rootSet;
 			
 			return currentTestSet.lock();
 		}
 		
-		static std::shared_ptr<TestSet> setCurrentSet(const TestSetRef & newSet) {
+		static std::shared_ptr<TestSet> setCurrentSet(const TestSetPtr & newSet) {
 			auto previous = currentSet();
 			currentTestSet = newSet;
 			return previous;
 		}
 		
 		class PushCurrentTestSet {
-			TestSetRef oldSet;
+			TestSetPtr oldSet;
 		public:
-			PushCurrentTestSet(TestSetRef & newSet) : oldSet(setCurrentSet(newSet)) {}
+			PushCurrentTestSet(TestSetPtr & newSet) : oldSet(setCurrentSet(newSet)) {}
 			~PushCurrentTestSet() { setCurrentSet(oldSet); }
 		};
-	}
 
-	
-	//  ____            _     _____         _
-	// | __ )  __ _ ___(_) __|_   _|__  ___| |_
-	// |  _ \ / _` / __| |/ __|| |/ _ \/ __| __|
-	// | |_) | (_| \__ \ | (__ | |  __/\__ \ |_
-	// |____/ \__,_|___/_|\___||_|\___||___/\__|
-	//
-	
-	void BasicTest::pass(const std::string & msg, const std::string & innerMsg) {
-		run_.lock()->result().pass(name(), msg, innerMsg);
+
+		// -- fixtures
+		
+		std::unordered_map<std::string, std::unique_ptr<FixtureBase>> FixtureBase::fixtures_;
 	}
 	
-	void BasicTest::failure(const std::string & msg, const std::string & innerMsg) {
-		run_.lock()->result().failure(name(), msg, innerMsg);
-	}
 	
-	void BasicTest::error(const std::string & msg, const std::string & innerMsg) {
-		run_.lock()->result().error(name(), msg, innerMsg);
-	}
 
 	
 	//  _____         _    ____
@@ -100,7 +87,7 @@ namespace Inquisition {
 	//   |_|\___||___/\__|_| \_\\__,_|_| |_|
 	//
 	
-	TestRun::TestRun(const std::string & label, const TestSetRef & testSet)
+	TestRun::TestRun(const std::string & label, const TestSetPtr & testSet)
 		: label_(label), testSet_(testSet), curTest_(testSet_->end()), result_{label_}
 	{}
 	
@@ -129,27 +116,18 @@ namespace Inquisition {
 	void TestRun::addSubRun(TestRun subRun) {
 		subRuns_.push_back(std::move(subRun));
 	}
-
-//	void TestRun::printResult() const {
-//		std::cout << "\n-----------------------------\n";
-//		std::cout << label_ << " results";
-//		std::cout << "\n-----------------------------\n";
-//		std::cout << "test cases : " << testCases_ << '\n';
-//		std::cout << "checks     : " << checks_ << '\n';
-//		std::cout << "passes     : " << passes_ << '\n';
-//		std::cout << "failures   : " << failures_ << '\n';
-//		std::cout << "errors     : " << errors_;
-//		std::cout << "\n-----------------------------\n";
-//		std::cout << "Verdict    : " << ((failures_ + errors_ > 0) ? "FAILURE" : "SUCCESS");
-//		std::cout << "\n-----------------------------\n";
-//		
-//		if (messages_.size()) {
-//			std::cout << "problems:\n";
-//			for (const auto & msg : messages_)
-//				std::cout << msg << '\n';
-//			std::cout << "-----------------------------\n";
-//		}
-//	}
+	
+	void TestRun::pass(const std::string & msg, const std::string & innerMsg) {
+		result_.pass((*curTest_)->name(), msg, innerMsg);
+	}
+	
+	void TestRun::failure(const std::string & msg, const std::string & innerMsg) {
+		result_.failure((*curTest_)->name(), msg, innerMsg);
+	}
+	
+	void TestRun::error(const std::string & msg, const std::string & innerMsg) {
+		result_.error((*curTest_)->name(), msg, innerMsg);
+	}
 	
 	
 	//  _____         _   ____                 _ _
@@ -180,12 +158,12 @@ namespace Inquisition {
 	//
 
 	template <typename T, typename ...Args>
-	void test(TestSetRef set, Args&&... args) {
+	void test(TestSetPtr set, Args&&... args) {
 		set->push_back(std::unique_ptr<BasicTest>(new T(std::forward<Args>(args)...)));
 	}
 
 	template <typename T>
-	void test(TestSetRef set) {
+	void test(TestSetPtr set) {
 		set->push_back(std::unique_ptr<BasicTest>(new T()));
 	}
 	
@@ -207,7 +185,7 @@ namespace Inquisition {
 		test<T>(detail::currentSet());
 	}
 	
-	void run(const TestSetRef & ts) {
+	void run(const TestSetPtr & ts) {
 		TestRun res("root", ts);
 		res.run();
 	}

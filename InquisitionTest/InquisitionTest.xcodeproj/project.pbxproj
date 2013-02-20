@@ -26,8 +26,8 @@
 /* Begin PBXFileReference section */
 		8E16AFD716D532A3006BA148 /* InquisitionTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InquisitionTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E16AFE316D5331A006BA148 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
-		8E16AFE616D5332A006BA148 /* Inquisition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Inquisition.cpp; path = ../Inquisition.cpp; sourceTree = "<group>"; };
-		8E16AFE716D5332A006BA148 /* Inquisition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Inquisition.h; path = ../Inquisition.h; sourceTree = "<group>"; };
+		8E16AFE616D5332A006BA148 /* Inquisition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = Inquisition.cpp; path = ../Inquisition.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		8E16AFE716D5332A006BA148 /* Inquisition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = Inquisition.h; path = ../Inquisition.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
