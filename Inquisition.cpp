@@ -36,6 +36,26 @@ namespace Inquisition {
 	}
 
 	
+	//  ____            _     _____         _
+	// | __ )  __ _ ___(_) __|_   _|__  ___| |_
+	// |  _ \ / _` / __| |/ __|| |/ _ \/ __| __|
+	// | |_) | (_| \__ \ | (__ | |  __/\__ \ |_
+	// |____/ \__,_|___/_|\___||_|\___||___/\__|
+	//
+	
+	void BasicTest::pass(const std::string & msg, const std::string & innerMsg) {
+		run_.lock()->result().pass(name(), msg, innerMsg);
+	}
+	
+	void BasicTest::failure(const std::string & msg, const std::string & innerMsg) {
+		run_.lock()->result().failure(name(), msg, innerMsg);
+	}
+	
+	void BasicTest::error(const std::string & msg, const std::string & innerMsg) {
+		run_.lock()->result().error(name(), msg, innerMsg);
+	}
+
+	
 	//  _____         _    ____
 	// |_   _|__  ___| |_ / ___|__ _ ___  ___
 	//   | |/ _ \/ __| __| |   / _` / __|/ _ \
@@ -108,18 +128,6 @@ namespace Inquisition {
 	
 	void TestRun::addSubRun(TestRun subRun) {
 		subRuns_.push_back(std::move(subRun));
-	}
-		
-	void TestRun::pass(const std::string & msg, const std::string & innerMsg) {
-		result_.pass((*curTest_)->name(), msg, innerMsg);
-	}
-	
-	void TestRun::failure(const std::string & msg, const std::string & innerMsg) {
-		result_.failure((*curTest_)->name(), msg, innerMsg);
-	}
-	
-	void TestRun::error(const std::string & msg, const std::string & innerMsg) {
-		result_.error((*curTest_)->name(), msg, innerMsg);
 	}
 
 //	void TestRun::printResult() const {

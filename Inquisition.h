@@ -23,89 +23,28 @@ namespace Inquisition {
 	
 	class BasicTest {
 		std::string name_;
+		int checkIndex_ = 0;
+		std::weak_ptr<TestRun> run_;
+		
+		void pass(const std::string & msg, const std::string & innerMsg = "");
+		void failure(const std::string & msg, const std::string & innerMsg = "");
+		void error(const std::string & msg, const std::string & innerMsg = "");
 		
 	public:
 		BasicTest(std::string name) : name_(name) {}
 		virtual ~BasicTest() {}
+
 		virtual void operator()(TestRun & res) = 0;
 		
 		const std::string & name() const { return name_; }
-	};
-
-	using TestSet = std::vector<std::unique_ptr<BasicTest>>;
-	using TestSetRef = std::shared_ptr<TestSet>;
-	
-
-	class TestCase : public BasicTest {
-		TestMethod method_;
 		
-	public:
-		TestCase(std::string name, TestMethod method);
-		void operator()(TestRun & res) override;
-	};
-	
-	
-	class TestGroup : public BasicTest {
-		TestSetRef subTests_;
-		
-	public:
-		TestGroup(std::string name, const std::function<void()> & init);
-		void operator()(TestRun & res) override;
-	};
-
-
-	template <typename Fix>
-	class FixtureTest : public BasicTest {
-	public:
-		FixtureTest(const std::string & name) : BasicTest(name) {}
-		Fix fix;
-	};
-
-
-	class TestResult {
-		int passes_ = 0;
-		int failures_ = 0;
-		int errors_ = 0;
-		const std::string label_;
-		
-		std::vector<const std::string> messages;
-
-	public:
-		TestResult() {}
-		TestResult(std::string label) : label_(label) {}
-
-		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-		void error(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
-	};
-
-	
-	class TestRun {
-		std::string label_;
-		const TestSetRef testSet_;
-		TestSet::const_iterator curTest_;
-		TestResult result_;
-		std::vector<TestRun> subRuns_;
-		int checkIndex_;
-
-		void pass(const std::string & msg, const std::string & innerMsg = "");
-		void failure(const std::string & msg, const std::string & innerMsg = "");
-		void error(const std::string & msg, const std::string & innerMsg = "");
-
-	public:
-		TestRun(const std::string & label, const TestSetRef & testSet);
-
-		const std::string & label() const { return label_; }
-		const TestResult & result() const { return result_; }
-		
-		void run();
-		void addSubRun(TestRun subRun);
+		// -- checks
 
 		template <typename Expr>
 		void checkImpl(Expr expr, const std::string & failMsg) {
 			try {
 				checkIndex_++;
-
+				
 				if (expr())
 					pass("check #" + std::to_string(checkIndex_));
 				else
@@ -159,6 +98,70 @@ namespace Inquisition {
 		void check_le(const T & t, const U & u) {
 			checkImpl([=] { return t <= u; }, std::to_string(t) + " was expected to be less than or equal to " + std::to_string(u));
 		}
+	};
+
+
+	using TestSet = std::vector<std::unique_ptr<BasicTest>>;
+	using TestSetRef = std::shared_ptr<TestSet>;
+	
+
+	class TestCase : public BasicTest {
+		TestMethod method_;
+		
+	public:
+		TestCase(std::string name, TestMethod method);
+		void operator()(TestRun & res) override;
+	};
+	
+	
+	class TestGroup : public BasicTest {
+		TestSetRef subTests_;
+		
+	public:
+		TestGroup(std::string name, const std::function<void()> & init);
+		void operator()(TestRun & res) override;
+	};
+
+
+	template <typename Fix>
+	class FixtureTest : public BasicTest {
+	public:
+		FixtureTest(const std::string & name) : BasicTest(name) {}
+		Fix fix;
+	};
+
+
+	class TestResult {
+		int passes_ = 0;
+		int failures_ = 0;
+		int errors_ = 0;
+		const std::string label_;
+
+	public:
+		TestResult() {}
+		TestResult(std::string label) : label_(label) {}
+
+		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+		void error(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+	};
+
+	
+	class TestRun {
+		std::string label_;
+		const TestSetRef testSet_;
+		TestSet::const_iterator curTest_;
+		TestResult result_;
+		std::vector<TestRun> subRuns_;
+
+	public:
+		TestRun(const std::string & label, const TestSetRef & testSet);
+
+		const std::string & label() const { return label_; }
+		TestResult & result() { return result_; }
+		void addSubRun(TestRun subRun);
+		
+		void run();
 	};
 	
 	
