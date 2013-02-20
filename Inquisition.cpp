@@ -47,7 +47,7 @@ namespace Inquisition {
 		: BasicTest(std::move(name)), method_(std::move(method))
 	{}
 	
-	void TestCase::operator()(TestSetRunner & res) {
+	void TestCase::operator()(TestRun & res) {
 		method_(res);
 	}
 
@@ -66,27 +66,27 @@ namespace Inquisition {
 		init();
 	}
 	
-	void TestGroup::operator()(TestSetRunner & res) {
-		TestSetRunner groupRun(res.label() + "." + name(), subTests_);
+	void TestGroup::operator()(TestRun & res) {
+		TestRun groupRun(res.label() + "." + name(), subTests_);
 		groupRun.run();
 		res.addSubRun(std::move(groupRun));
 	}
 
 	
-	//  _____         _   ____       _   ____
-	// |_   _|__  ___| |_/ ___|  ___| |_|  _ \ _   _ _ __  _ __   ___ _ __
-	//   | |/ _ \/ __| __\___ \ / _ \ __| |_) | | | | '_ \| '_ \ / _ \ '__|
-	//   | |  __/\__ \ |_ ___) |  __/ |_|  _ <| |_| | | | | | | |  __/ |
-	//   |_|\___||___/\__|____/ \___|\__|_| \_\\__,_|_| |_|_| |_|\___|_|
+	//  _____         _   ____
+	// |_   _|__  ___| |_|  _ \ _   _ _ __
+	//   | |/ _ \/ __| __| |_) | | | | '_ \
+	//   | |  __/\__ \ |_|  _ <| |_| | | | |
+	//   |_|\___||___/\__|_| \_\\__,_|_| |_|
 	//
 	
-	TestSetRunner::TestSetRunner(const std::string & label, const TestSetRef & testSet)
+	TestRun::TestRun(const std::string & label, const TestSetRef & testSet)
 		: label_(label), testSet_(testSet), curTest_(testSet_->end())
 	{}
 	
-	void TestSetRunner::run() {
+	void TestRun::run() {
 		for (curTest_ = testSet_->cbegin(); curTest_ < testSet_->cend(); curTest_++) {
-			testCases_++;
+			//result_.testCases++;
 			
 			try {
 				(**curTest_)(*this);
@@ -98,58 +98,71 @@ namespace Inquisition {
 				error("unexpected string exception in test body: " + str);
 			}
 			catch (const char * cp) {
-				error(std::string("unexpected c-string exception in test body: ") + cp);
+				error("unexpected c-string exception in test body: " + std::string(cp));
 			}
 			catch (...) {
 				error("unexpected other exception in test body");
 			}
 		}
-		printResult();
 	}
 	
-	void TestSetRunner::addSubRun(TestSetRunner subRun) {
+	void TestRun::addSubRun(TestRun subRun) {
 		subRuns_.push_back(std::move(subRun));
 	}
-
-	void TestSetRunner::addMessage(const std::string & msg) {
-		messages_.push_back(label_ + "." + (*curTest_)->name() + " " + msg);
-	}
-	
-	void TestSetRunner::failure(const std::string & msg) {
-		failures_++;
-		addMessage("FAILURE: " + msg);
-	}
-	
-	void TestSetRunner::error(const std::string & msg, const std::exception * ex) {
-		errors_++;
-		if (ex != nullptr)
-			addMessage("ERROR: " + msg + ex->what());
-		else
-			addMessage("ERROR: " + msg);
-	}
-
-	
-	void TestSetRunner::printResult() const {
-		std::cout << "\n-----------------------------\n";
-		std::cout << label_ << " results";
-		std::cout << "\n-----------------------------\n";
-		std::cout << "test cases : " << testCases_ << '\n';
-		std::cout << "checks     : " << checks_ << '\n';
-		std::cout << "passes     : " << passes_ << '\n';
-		std::cout << "failures   : " << failures_ << '\n';
-		std::cout << "errors     : " << errors_;
-		std::cout << "\n-----------------------------\n";
-		std::cout << "Verdict    : " << ((failures_ + errors_ > 0) ? "FAILURE" : "SUCCESS");
-		std::cout << "\n-----------------------------\n";
 		
-		if (messages_.size()) {
-			std::cout << "problems:\n";
-			for (const auto & msg : messages_)
-				std::cout << msg << '\n';
-			std::cout << "-----------------------------\n";
-		}
+	void TestRun::pass() {
+		result_.pass((*curTest_)->name());
 	}
 	
+	void TestRun::failure(const std::string & msg, const std::exception * ex) {
+		result_.failure((*curTest_)->name(), msg);
+	}
+	
+	void TestRun::error(const std::string & msg, const std::exception * ex) {
+		result_.error((*curTest_)->name(), msg, ex);
+	}
+
+//	void TestRun::printResult() const {
+//		std::cout << "\n-----------------------------\n";
+//		std::cout << label_ << " results";
+//		std::cout << "\n-----------------------------\n";
+//		std::cout << "test cases : " << testCases_ << '\n';
+//		std::cout << "checks     : " << checks_ << '\n';
+//		std::cout << "passes     : " << passes_ << '\n';
+//		std::cout << "failures   : " << failures_ << '\n';
+//		std::cout << "errors     : " << errors_;
+//		std::cout << "\n-----------------------------\n";
+//		std::cout << "Verdict    : " << ((failures_ + errors_ > 0) ? "FAILURE" : "SUCCESS");
+//		std::cout << "\n-----------------------------\n";
+//		
+//		if (messages_.size()) {
+//			std::cout << "problems:\n";
+//			for (const auto & msg : messages_)
+//				std::cout << msg << '\n';
+//			std::cout << "-----------------------------\n";
+//		}
+//	}
+	
+	
+	//  _____         _   ____                 _ _
+	// |_   _|__  ___| |_|  _ \ ___  ___ _   _| | |_
+	//   | |/ _ \/ __| __| |_) / _ \/ __| | | | | __|
+	//   | |  __/\__ \ |_|  _ <  __/\__ \ |_| | | |_
+	//   |_|\___||___/\__|_| \_\___||___/\__,_|_|\__|
+	//
+	
+	void TestResult::pass(const std::string & testName) {
+		
+	}
+
+	void TestResult::failure(const std::string & testName, const std::string & msg, const std::exception * ex) {
+		
+	}
+
+	void TestResult::error(const std::string & testName, const std::string & msg, const std::exception * ex) {
+		
+	}
+
 
 	//     _    ____ ___
 	//    / \  |  _ \_ _|
@@ -172,7 +185,7 @@ namespace Inquisition {
 	}
 	
 	void run(const TestSetRef & ts) {
-		TestSetRunner res("root", ts);
+		TestRun res("root", ts);
 		res.run();
 	}
 	

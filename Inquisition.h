@@ -16,9 +16,9 @@
 namespace Inquisition {
 	
 	class TestCase;
-	class TestSetRunner;
+	class TestRun;
 
-	using TestMethod = std::function<void(TestSetRunner &)>;
+	using TestMethod = std::function<void(TestRun &)>;
 	
 	
 	class BasicTest {
@@ -27,7 +27,7 @@ namespace Inquisition {
 	public:
 		BasicTest(std::string name) : name_(name) {}
 		virtual ~BasicTest() {}
-		virtual void operator()(TestSetRunner & res) = 0;
+		virtual void operator()(TestRun & res) = 0;
 		
 		const std::string & name() const { return name_; }
 	};
@@ -40,7 +40,7 @@ namespace Inquisition {
 		
 	public:
 		TestCase(std::string name, TestMethod method);
-		void operator()(TestSetRunner & res) override;
+		void operator()(TestRun & res) override;
 	};
 	
 	
@@ -52,59 +52,67 @@ namespace Inquisition {
 		virtual void setup() {}
 		virtual void tearDown() {}
 		
-		void operator()(TestSetRunner & res) override;
+		void operator()(TestRun & res) override;
+	};
+	
+	
+	class TestResult {
+		int passes_ = 0;
+		int failures_ = 0;
+		int errors_ = 0;
+		const std::string label_;
+		
+		std::vector<const std::string> messages;
+
+	public:
+		void pass(const std::string & testName);
+		void failure(const std::string & testName, const std::string & msg, const std::exception * ex = nullptr);
+		void error(const std::string & testName, const std::string & msg, const std::exception * ex = nullptr);
 	};
 
 	
-	class TestSetRunner {
-		int testCases_ = 0;
-		int checks_ = 0;
-		int failures_ = 0;
-		int errors_ = 0;
-		int passes_ = 0;
-
+	class TestRun {
 		std::string label_;
-		const TestSetRef & testSet_;
+		const TestSetRef testSet_;
 		TestSet::const_iterator curTest_;
-		std::vector<TestSetRunner> subRuns_;
-		std::vector<const std::string> messages_;
+		TestResult result_;
+		std::vector<TestRun> subRuns_;
 
-		void addMessage(const std::string & msg);
-		void failure(const std::string & msg);
+		void pass();
+		void failure(const std::string & msg, const std::exception * ex = nullptr);
 		void error(const std::string & msg, const std::exception * ex = nullptr);
+
+	public:
+		TestRun(const std::string & label, const TestSetRef & testSet);
+
+		const std::string & label() const { return label_; }
+		const TestResult & result() const { return result_; }
+		
+		void run();
+		void addSubRun(TestRun subRun);
 
 		template <typename T>
 		void checkImpl(T expr, const std::string & failMsg) {
 			try {
-				checks_++;
 				if (expr())
-					passes_++;
+					pass();
 				else
 					failure(failMsg);
 			}
 			catch(const std::exception & ex) {
-				error("Unexpected exception", &ex);
+				failure("unexpected std::exception during check", &ex);
+			}
+			catch (const std::string & str) {
+				failure("unexpected string exception in test body: " + str);
+			}
+			catch (const char * cp) {
+				failure("unexpected c-string exception in test body: " + std::string(cp));
 			}
 			catch(...) {
-				error("Unexpected exception");
+				failure("unexpected other exception");
 			}
 		}
 		
-	public:
-		TestSetRunner(const std::string & label, const TestSetRef & testSet);
-
-		int tests() const    { return testCases_; }
-		int checks() const   { return checks_; }
-		int failures() const { return failures_; }
-		int errors() const   { return errors_; }
-		int passes() const   { return passes_; }
-		const std::string & label() const { return label_; }
-		
-		void run();
-		void addSubRun(TestSetRunner subRun);
-		
-		void printResult() const;
-
 		void check(bool expr) {
 			checkImpl([=] { return expr; }, "");
 		}
@@ -119,7 +127,7 @@ namespace Inquisition {
 			checkImpl([=] { return t > u; }, std::to_string(t) + " is not greater than " + std::to_string(u));
 		}
 	};
-
+	
 	
 	void test(const std::string & name, const TestMethod & method);
 	void group(const std::string & name, const std::function<void()> & init);
