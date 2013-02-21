@@ -82,6 +82,9 @@ namespace Inquisition {
 	public:
 		TestResult() {}
 		TestResult(std::string label) : label_(label) {}
+		
+		TestResult operator +(const TestResult & rhs);
+		TestResult & operator +=(const TestResult & rhs);
 
 		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
 		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
@@ -107,11 +110,14 @@ namespace Inquisition {
 
 	public:
 		TestRun(const std::string & label, const TestSetPtr & testSet);
-
-		const std::string & label() const { return label_; }
-		TestResult & result() { return result_; }
-		void addSubRun(TestRun subRun);
 		
+		const std::string & label() const { return label_; }
+		const TestResult & result() const { return result_; }
+		TestResult compoundResult();
+
+		void addSubRun(TestRun subRun);
+		const std::vector<TestRun> & subRuns() const { return subRuns_; }
+			
 		void run();
 		
 		// -- checks
@@ -238,8 +244,8 @@ namespace Inquisition {
 	void test(const std::string & name, const TestMethod & method);
 	void group(const std::string & name, const std::function<void()> & init);
 
-	void run(const TestSetPtr & test);
-	void runAll();
+	TestRun run(const TestSetPtr & test);
+	TestRun runAll();
 
 } // namespace Inquisition
 

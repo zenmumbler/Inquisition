@@ -89,6 +89,18 @@ namespace Inquisition {
 		: label_(label), testSet_(testSet), curTest_(testSet_->end()), result_{label_}
 	{}
 	
+	static void recurseSumResult(const TestRun & lvl, TestResult & res) {
+		res += lvl.result();
+		for (const TestRun & sub : lvl.subRuns())
+			recurseSumResult(sub, res);
+	}
+	
+	TestResult TestRun::compoundResult() {
+		TestResult comp;
+		recurseSumResult(*this, comp);
+		return comp;
+	}
+	
 	void TestRun::run() {
 		for (curTest_ = testSet_->cbegin(); curTest_ < testSet_->cend(); curTest_++) {
 			checkIndex_ = 0;
@@ -134,6 +146,23 @@ namespace Inquisition {
 	//   | |  __/\__ \ |_|  _ <  __/\__ \ |_| | | |_
 	//   |_|\___||___/\__|_| \_\___||___/\__,_|_|\__|
 	//
+
+	TestResult TestResult::operator +(const TestResult & rhs) {
+		TestResult sum { rhs };
+		sum.passes_ += passes_;
+		sum.failures_ += failures_;
+		sum.errors_ += errors_;
+		
+		return std::move(sum);
+	}
+	
+	TestResult & TestResult::operator +=(const TestResult & rhs) {
+		passes_ += rhs.passes_;
+		failures_ += rhs.failures_;
+		errors_ += rhs.errors_;
+		
+		return *this;
+	}
 	
 	void TestResult::pass(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
 		passes_++;
@@ -170,13 +199,14 @@ namespace Inquisition {
 		detail::test<TestGroup>(detail::currentSet(), name, init);
 	}
 	
-	void run(const TestSetPtr & ts) {
+	TestRun run(const TestSetPtr & ts) {
 		TestRun res("root", ts);
 		res.run();
+		return std::move(res);
 	}
 	
-	void runAll() {
-		run(detail::currentSet());
+	TestRun runAll() {
+		return run(detail::currentSet());
 	}
 
 } // namespace Inquisition
