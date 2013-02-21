@@ -25,13 +25,13 @@ Example Usage
 			});
 
 			test("exception = error", [](TestRun & res){
-				throw std::runtime_error("no cookie for you");
+				throw std::runtime_error("no cookie for you"); // reports error in test body
 			});
 
 			test("relations", [](TestRun & res){
 				res.check_equal(5, 5);
 				res.check_gt(10, 5);
-				res.check_le(10, 4 * 2);
+				res.check_le(10, 4 * 2); // reports failure for check #3
 			});
 		});
 
