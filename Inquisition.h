@@ -14,33 +14,16 @@
 #include <string>
 #include <unordered_map>
 
-namespace Inquisition {
-	
-	namespace detail {
-		class FixtureBase {
-		public:
-			virtual ~FixtureBase() = default;
-			static std::unordered_map<std::string, std::unique_ptr<FixtureBase>> fixtures_;
-		};
-		
-		template <typename Fixture>
-		class FixtureHolder : public FixtureBase {
-			std::unique_ptr<Fixture> fixture_;
-		public:
-			FixtureHolder() : fixture_ { new Fixture() } {}
-			Fixture & fixture() { return *fixture_.get(); }
-		};
-	}
-	
-	class Fixture {
-	public:
-		virtual ~Fixture() = default;
-		
-		virtual void setup() {}
-		virtual void tearDown() {}
-	};
 
-	
+namespace Inquisition {
+
+	//  _____         _      ___  _     _           _
+	// |_   _|__  ___| |_   / _ \| |__ (_) ___  ___| |_ ___
+	//   | |/ _ \/ __| __| | | | | '_ \| |/ _ \/ __| __/ __|
+	//   | |  __/\__ \ |_  | |_| | |_) | |  __/ (__| |_\__ \
+	//   |_|\___||___/\__|  \___/|_.__// |\___|\___|\__|___/
+	//                               |__/
+
 	class TestCase;
 	class TestRun;
 
@@ -83,6 +66,13 @@ namespace Inquisition {
 	};
 
 
+	//  _____         _     _____            _
+	// |_   _|__  ___| |_  | ____|_   ____ _| |
+	//   | |/ _ \/ __| __| |  _| \ \ / / _` | |
+	//   | |  __/\__ \ |_  | |___ \ V / (_| | |
+	//   |_|\___||___/\__| |_____| \_/ \__,_|_|
+	//
+
 	class TestResult {
 		int passes_ = 0;
 		int failures_ = 0;
@@ -96,6 +86,10 @@ namespace Inquisition {
 		void pass(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
 		void failure(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
 		void error(const std::string & testName, const std::string & msg, const std::string & innerMsg = "");
+		
+		int passes() const { return passes_; }
+		int failures() const { return failures_; }
+		int errors() const { return errors_; }
 	};
 
 	
@@ -181,7 +175,51 @@ namespace Inquisition {
 			checkImpl([=] { return t <= u; }, std::to_string(t) + " was expected to be less than or equal to " + std::to_string(u));
 		}
 	};
+
 	
+	//  _____ _      _
+	// |  ___(_)_  _| |_ _   _ _ __ ___  ___
+	// | |_  | \ \/ / __| | | | '__/ _ \/ __|
+	// |  _| | |>  <| |_| |_| | | |  __/\__ \
+	// |_|   |_/_/\_\\__|\__,_|_|  \___||___/
+	//
+	
+	namespace detail {
+		class FixtureBase {
+		public:
+			virtual ~FixtureBase() = default;
+			
+			static std::unordered_map<std::string, std::unique_ptr<FixtureBase>> fixtures_;
+		};
+		
+		template <typename Fixture>
+		class FixtureHolder : public FixtureBase {
+			std::unique_ptr<Fixture> fixture_;
+		public:
+			FixtureHolder() : fixture_ { new Fixture() } {}
+			Fixture & fixture() { return *fixture_.get(); }
+		};
+	}
+	
+	
+	//  ____        __ _       _ _   _
+	// |  _ \  ___ / _(_)_ __ (_) |_(_) ___  _ __
+	// | | | |/ _ \ |_| | '_ \| | __| |/ _ \| '_ \
+	// | |_| |  __/  _| | | | | | |_| | (_) | | | |
+	// |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
+	//
+
+	namespace detail {
+		template <typename T, typename ...Args>
+		void test(TestSetPtr set, Args&&... args) {
+			set->push_back(std::unique_ptr<BasicTest>(new T(std::forward<Args>(args)...)));
+		}
+		
+		template <typename T>
+		void test(TestSetPtr set) {
+			set->push_back(std::unique_ptr<BasicTest>(new T()));
+		}
+	}
 	
 	template <typename Fixture>
 	void def_fixture(const std::string & name) {
@@ -196,6 +234,7 @@ namespace Inquisition {
 		return dynamic_cast<detail::FixtureHolder<Fixture>*>(fb.get())->fixture();
 	}
 
+	void test(TestSetPtr set, const std::string & name, const TestMethod & method);
 	void test(const std::string & name, const TestMethod & method);
 	void group(const std::string & name, const std::function<void()> & init);
 

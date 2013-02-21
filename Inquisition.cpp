@@ -39,8 +39,6 @@ namespace Inquisition {
 		
 		std::unordered_map<std::string, std::unique_ptr<FixtureBase>> FixtureBase::fixtures_;
 	}
-	
-	
 
 	
 	//  _____         _    ____
@@ -138,14 +136,17 @@ namespace Inquisition {
 	//
 	
 	void TestResult::pass(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		passes_++;
 		std::cout << "PASS " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
 	void TestResult::failure(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		failures_++;
 		std::cout << "FAIL " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
 	void TestResult::error(const std::string & testName, const std::string & msg, const std::string & innerMsg) {
+		errors_++;
 		std::cout << "ERROR " << label_ << '.' << testName << ": " << msg << ' ' << innerMsg << '\n';
 	}
 
@@ -157,32 +158,16 @@ namespace Inquisition {
 	// /_/   \_\_|  |___|
 	//
 
-	template <typename T, typename ...Args>
-	void test(TestSetPtr set, Args&&... args) {
-		set->push_back(std::unique_ptr<BasicTest>(new T(std::forward<Args>(args)...)));
+	void test(TestSetPtr set, const std::string & name, const TestMethod & method) {
+		detail::test<TestCase>(set, name, method);
 	}
 
-	template <typename T>
-	void test(TestSetPtr set) {
-		set->push_back(std::unique_ptr<BasicTest>(new T()));
-	}
-	
 	void test(const std::string & name, const TestMethod & method) {
-		test<TestCase>(detail::currentSet(), name, method);
+		detail::test<TestCase>(detail::currentSet(), name, method);
 	}
 	
 	void group(const std::string & name, const std::function<void()> & init) {
-		test<TestGroup>(detail::currentSet(), name, init);
-	}
-	
-	template <typename T, typename ...Args>
-	void ctest(Args... args) {
-		test<T>(detail::currentSet(), std::forward<Args>(args)...);
-	}
-	
-	template <typename T>
-	void ctest() {
-		test<T>(detail::currentSet());
+		detail::test<TestGroup>(detail::currentSet(), name, init);
 	}
 	
 	void run(const TestSetPtr & ts) {
