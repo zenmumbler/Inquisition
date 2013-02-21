@@ -19,24 +19,23 @@ Example Usage
 
 	int main() {
 		group("mytests", []{
-			test("some test", [](TestSetRunner & res){
+			test("basic test", [](TestRun & res){
 				std::cout << "running a test\n";
-				res.check(1 == 2);
+				res.check_false(1 == 2);
 			});
 
-			test("exception1", [](TestSetRunner & res){
-				throw "some random string";
-			});
-
-			test("exception2", [](TestSetRunner & res){
+			test("exception = error", [](TestRun & res){
 				throw std::runtime_error("no cookie for you");
 			});
 
-			test("ok", [](TestSetRunner & res){
+			test("relations", [](TestRun & res){
 				res.check_equal(5, 5);
 				res.check_gt(10, 5);
+				res.check_le(10, 4 * 2);
 			});
 		});
 
 		runAll();
 	}
+
+For a more practical example, look at the self-test files in the InquisitionTest dir.
