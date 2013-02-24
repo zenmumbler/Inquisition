@@ -12,20 +12,13 @@ using namespace Inquisition;
 
 
 class MetaRun {
-	TestPtr metaRoot_;
-	TestReportPtr metaReport_;
-	TestRun metaRun_;
-	detail::PushCurrentTest pusher_;
-public:
-	MetaRun()
-		: metaRoot_ { makeTest("meta", []{}) }
-		, metaReport_ { makeReport<SimpleTestReport>(std::ref(std::cout)) }
-		, metaRun_ { metaReport_ }
-		, pusher_ { metaRoot_ }
-	{}
+	TestPtr metaRoot_ { makeTest("meta", []{}) };
+	TestReportPtr metaReport_ { makeReport<SimpleTestReport>(std::ref(std::cout)) };
+	TestRun metaRun_ { metaReport_ };
+	detail::PushCurrentTest pusher_ { metaRoot_ };
 
+public:
 	const TestReportPtr & report() const { return metaReport_; }
-	
 	void run() { metaRun_.run(metaRoot_); }
 };
 
