@@ -21,18 +21,14 @@ Example Usage
 		// group tests together under a common name
 		group("mytests", []{
 
-			// each test() call is named and can have many checks in them
+			// each test() call is named and can have many checks in it
 			test("basic test", []{
 				std::cout << "running a test\n";
 				check_false(1 == 2);
 			});
 
-			test("exception = error", []{
-				throw std::runtime_error("no cookie for you"); // reports error
-			});
-
 			// Inquisition keeps track of groups and tests during creation and evaluation
-			// so the definition syntax of tests and checks is nice and terse
+			// so the definition syntax of tests and checks is nice and succinct
 			test("relations", []{
 				check_equal(5, 5);
 				check_gt(10, 5);
@@ -44,7 +40,7 @@ Example Usage
 		auto r = makeReport<SimpleTestReport>(std::ref(std::cout));
 		runAll(r);
 
-		// doing this will return a non-zero result for failed builds, for use in bigger purposes
+		// doing this will return a non-zero result for failed builds, for use in bigger build processes
 		return r->failures() + r->errors();
 	}
 
