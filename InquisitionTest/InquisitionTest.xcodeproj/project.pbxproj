@@ -43,6 +43,8 @@
 		8E16AFF416D99BEC006BA148 /* checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = checks.h; path = ../checks.h; sourceTree = "<group>"; };
 		8E16AFF616DA6DF8006BA148 /* helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = helpers.cpp; path = ../helpers.cpp; sourceTree = "<group>"; };
 		8E16AFF716DA6DF8006BA148 /* helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helpers.h; path = ../helpers.h; sourceTree = "<group>"; };
+		8E16AFF916DA8C64006BA148 /* test_integers_inl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_integers_inl.h; sourceTree = SOURCE_ROOT; };
+		8E16AFFA16DA8CC6006BA148 /* test_strings_inl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_strings_inl.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,8 @@
 			isa = PBXGroup;
 			children = (
 				8E16AFE316D5331A006BA148 /* main.cpp */,
+				8E16AFFA16DA8CC6006BA148 /* test_strings_inl.h */,
+				8E16AFF916DA8C64006BA148 /* test_integers_inl.h */,
 			);
 			path = InquisitionTest;
 			sourceTree = "<group>";
