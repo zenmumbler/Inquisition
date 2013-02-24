@@ -7,7 +7,7 @@ Current C++ Unit test frameworks I've looked at use a ton of macros and void* an
 This lib is an attempt to create a reasonably succinct and easy to use unit testing framework that relies on modern C++11 conventions
 and not on tons of preprocessor stuff.
 
-Still in the early development stages, but actively being worked on (Feb 2013)
+Still in the early development stages, actively being worked on (Feb 2013)
 
 Example Usage
 -------------
@@ -18,24 +18,34 @@ Example Usage
 	using namespace Inquisition;
 
 	int main() {
+		// group tests together under a common name
 		group("mytests", []{
-			test("basic test", [](TestRun & res){
+
+			// each test() call is named and can have many checks in them
+			test("basic test", []{
 				std::cout << "running a test\n";
-				res.check_false(1 == 2);
+				check_false(1 == 2);
 			});
 
-			test("exception = error", [](TestRun & res){
-				throw std::runtime_error("no cookie for you"); // reports error in test body
+			test("exception = error", []{
+				throw std::runtime_error("no cookie for you"); // reports error
 			});
 
-			test("relations", [](TestRun & res){
-				res.check_equal(5, 5);
-				res.check_gt(10, 5);
-				res.check_le(10, 4 * 2); // reports failure for check #3
+			// Inquisition keeps track of groups and tests during creation and evaluation
+			// so the definition syntax of tests and checks is nice and terse
+			test("relations", []{
+				check_equal(5, 5);
+				check_gt(10, 5);
+				check_le(10, 4 * 2); // reports failure for check #3
 			});
 		});
 
-		runAll();
+		// all results are collected in a TestReport instance that you provide
+		auto r = makeReport<SimpleTestReport>(std::ref(std::cout));
+		runAll(r);
+
+		// doing this will return a non-zero result for failed builds, for use in bigger purposes
+		return r->failures() + r->errors();
 	}
 
 For a more practical example, look at the self-test files in the InquisitionTest dir.
