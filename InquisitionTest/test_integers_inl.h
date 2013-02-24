@@ -26,7 +26,7 @@ static void testIntegers() {
 		test("failed comparisons should yield failures", []{
 			MetaRun meta;
 			
-			test("inverse integer", []{
+			test("inverse integer relations", []{
 				check_equal(100, 99);
 				check_not_equal(100, 100);
 				
@@ -49,7 +49,7 @@ static void testIntegers() {
 			check_equal(metaReport->errors(),   0);
 		});
 		
-		test("templated comparisons should work with all integer types", []{
+		test("templated comparisons should handle limits correctly", []{
 			check_gt((char)CHAR_MAX, (char)CHAR_MIN);
 			check_gt((unsigned char)UCHAR_MAX, (unsigned char)0);
 			check_gt((int16_t)INT16_MAX, (int16_t)INT16_MIN);

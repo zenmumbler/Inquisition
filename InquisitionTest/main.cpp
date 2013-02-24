@@ -24,17 +24,19 @@ public:
 
 
 #include "test_integers_inl.h"
+#include "test_floats_inl.h"
 #include "test_strings_inl.h"
 
 
 int main() {
-	group("Basics", []{
-		test("boolean checks", []{
+	group("basics", []{
+		test("simple boolean checks should match", []{
 			check_true(true);
 			check_false(false);
 		});
 
 		testIntegers();
+		testFloats();
 		testStrings();
 	});
 	
