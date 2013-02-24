@@ -13,6 +13,7 @@
 		8E16AFEF16D970D7006BA148 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E16AFED16D970D7006BA148 /* Test.cpp */; };
 		8E16AFF216D97234006BA148 /* TestReport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E16AFF016D97234006BA148 /* TestReport.cpp */; };
 		8E16AFF516D99BED006BA148 /* checks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E16AFF316D99BEC006BA148 /* checks.cpp */; };
+		8E16AFF816DA6DF8006BA148 /* helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E16AFF616DA6DF8006BA148 /* helpers.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,8 @@
 		8E16AFF116D97234006BA148 /* TestReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestReport.h; path = ../TestReport.h; sourceTree = "<group>"; };
 		8E16AFF316D99BEC006BA148 /* checks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = checks.cpp; path = ../checks.cpp; sourceTree = "<group>"; };
 		8E16AFF416D99BEC006BA148 /* checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = checks.h; path = ../checks.h; sourceTree = "<group>"; };
+		8E16AFF616DA6DF8006BA148 /* helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = helpers.cpp; path = ../helpers.cpp; sourceTree = "<group>"; };
+		8E16AFF716DA6DF8006BA148 /* helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helpers.h; path = ../helpers.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,8 @@
 				8E16AFF016D97234006BA148 /* TestReport.cpp */,
 				8E16AFEB16D97047006BA148 /* TestRun.h */,
 				8E16AFEA16D97047006BA148 /* TestRun.cpp */,
+				8E16AFF716DA6DF8006BA148 /* helpers.h */,
+				8E16AFF616DA6DF8006BA148 /* helpers.cpp */,
 				8E16AFF416D99BEC006BA148 /* checks.h */,
 				8E16AFF316D99BEC006BA148 /* checks.cpp */,
 				8E16AFE716D5332A006BA148 /* Inquisition.h */,
@@ -152,6 +157,7 @@
 				8E16AFEF16D970D7006BA148 /* Test.cpp in Sources */,
 				8E16AFF216D97234006BA148 /* TestReport.cpp in Sources */,
 				8E16AFF516D99BED006BA148 /* checks.cpp in Sources */,
+				8E16AFF816DA6DF8006BA148 /* helpers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,7 +23,7 @@ public:
 };
 
 
-void testIntegers() {
+static void testIntegers() {
 	group("integers", []{
 		test("relations should be correct", []{
 			check_equal(100, 100);
@@ -82,6 +82,62 @@ void testIntegers() {
 }
 
 
+static void testStrings() {
+	group("strings", []{
+		std::string mk { "monkey" };
+		std::string oc { "octopus" };
+
+		test("strings should equate correctly", [=]{
+			check_equal("monkey", "monkey");
+			check_equal(mk, "monkey");
+			check_equal("monkey", mk);
+			check_equal(mk, mk);
+
+			check_not_equal("monkey", "octopus");
+			check_not_equal(oc, "monkey");
+			check_not_equal("monkey", oc);
+			check_not_equal(mk, oc);
+		});
+
+		test("strings should order correctly", [=]{
+			// < and <=
+			check_lt("monkey", "octopus");
+			check_le("monkey", "octopus");
+			check_le("monkey", "monkey");
+
+			check_lt(mk, "octopus");
+			check_le(mk, "octopus");
+			check_le(mk, "monkey");
+
+			check_lt("monkey", oc);
+			check_le("monkey", oc);
+			check_le("monkey", mk);
+
+			check_lt(mk, oc);
+			check_le(mk, oc);
+			check_le(mk, mk);
+
+			// > and >=
+			check_gt("octopus", "monkey");
+			check_ge("octopus", "monkey");
+			check_ge("octopus", "octopus");
+			
+			check_gt(oc, "monkey");
+			check_ge(oc, "monkey");
+			check_ge(oc, "octopus");
+			
+			check_gt("octopus", mk);
+			check_ge("octopus", mk);
+			check_ge("octopus", oc);
+			
+			check_gt(oc, mk);
+			check_ge(oc, mk);
+			check_ge(oc, oc);
+		});
+	});
+}
+
+
 int main() {
 	group("Basics", []{
 		test("boolean checks", []{
@@ -90,6 +146,7 @@ int main() {
 		});
 
 		testIntegers();
+		testStrings();
 	});
 	
 	auto r = makeReport<SimpleTestReport>(std::ref(std::cout));

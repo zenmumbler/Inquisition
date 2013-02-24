@@ -11,6 +11,7 @@
 
 #include <string>
 #include "TestReport.h"
+#include "helpers.h"
 
 namespace Inquisition {
 	template <typename Expr>
@@ -27,33 +28,45 @@ namespace Inquisition {
 	
 	template <typename T, typename U>
 	void check_equal(const T & t, const U & u) {
-		checkImpl([=] { return t == u; }, std::to_string(t) + " was expected to be equal to " + std::to_string(u));
+		checkImpl([=] { return t == u; }, toString(t) + " was expected to be equal to " + toString(u));
 	}
+	
+	void check_equal(const char * lhs, const char * rhs);
 	
 	template <typename T, typename U>
 	void check_not_equal(const T & t, const U & u) {
-		checkImpl([=] { return t != u; }, std::to_string(t) + " was expected to differ from " + std::to_string(u));
+		checkImpl([=] { return t != u; }, toString(t) + " was expected to differ from " + toString(u));
 	}
-	
+
+	void check_not_equal(const char * lhs, const char * rhs);
+
 	template <typename T, typename U>
 	void check_gt(const T & t, const U & u) {
-		checkImpl([=] { return t > u; }, std::to_string(t) + " was expected to be greater than " + std::to_string(u));
+		checkImpl([=] { return t > u; }, toString(t) + " was expected to be greater than " + toString(u));
 	}
 	
+	void check_gt(const char * lhs, const char * rhs);
+
 	template <typename T, typename U>
 	void check_ge(const T & t, const U & u) {
-		checkImpl([=] { return t >= u; }, std::to_string(t) + " was expected to be greater than or equal to " + std::to_string(u));
+		checkImpl([=] { return t >= u; }, toString(t) + " was expected to be greater than or equal to " + toString(u));
 	}
-	
+
+	void check_ge(const char * lhs, const char * rhs);
+
 	template <typename T, typename U>
 	void check_lt(const T & t, const U & u) {
-		checkImpl([=] { return t < u; }, std::to_string(t) + " was expected to be less than " + std::to_string(u));
+		checkImpl([=] { return t < u; }, toString(t) + " was expected to be less than " + toString(u));
 	}
 	
+	void check_lt(const char * lhs, const char * rhs);
+
 	template <typename T, typename U>
 	void check_le(const T & t, const U & u) {
-		checkImpl([=] { return t <= u; }, std::to_string(t) + " was expected to be less than or equal to " + std::to_string(u));
+		checkImpl([=] { return t <= u; }, toString(t) + " was expected to be less than or equal to " + toString(u));
 	}
+
+	void check_le(const char * lhs, const char * rhs);
 }
 
 
