@@ -12,14 +12,15 @@
 #include <type_traits>
 
 namespace Inquisition {
-
 	template<typename T>
-	std::string toString(const T t, typename std::enable_if<std::is_arithmetic<T>::value >::type* = nullptr) {
+	std::string to_string(const T t, typename std::enable_if<std::is_arithmetic<T>::value >::type* = nullptr) {
 		return std::to_string(t);
 	}
 
-	std::string toString(const char * cs);
-	std::string toString(const std::string & s);
+	std::string to_string(const bool b);
+	
+	std::string to_string(const char * cs);
+	std::string to_string(std::string s);
 }
 
 #endif /* defined(INQUISITION_HELPERS_INCLUDED) */

@@ -8,13 +8,15 @@
 #include "helpers.h"
 
 namespace Inquisition {
+	std::string to_string(const bool b) {
+		return b ? "true" : "false";
+	}
 
-	std::string toString(const char * cs) {
+	std::string to_string(const char * cs) {
 		return cs;
 	}
 	
-	std::string toString(const std::string & s) {
+	std::string to_string(std::string s) {
 		return s;
 	}
-
 }
