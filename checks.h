@@ -9,11 +9,17 @@
 #ifndef INQUISITION_CHECKS_INCLUDED
 #define INQUISITION_CHECKS_INCLUDED
 
-#include <string>
 #include "TestReport.h"
 #include "helpers.h"
+#include <string>
+#include <cmath>
 
 namespace Inquisition {
+	namespace detail {
+		template <typename F>
+		F epsilon();
+	}
+
 	template <typename Expr>
 	bool checkImpl(Expr expr, const std::string & failMsg) {
 		bool success = expr();
@@ -25,46 +31,60 @@ namespace Inquisition {
 	}
 	
 	
-	bool check_true(bool expr);
-	bool check_false(bool expr);
+	bool checkTrue(bool expr);
+	bool checkFalse(bool expr);
 	
 	template <typename T, typename U>
-	bool check_equal(const T & t, const U & u) {
-		return checkImpl([=] { return t == u; }, to_string(t) + " was expected to be equal to " + to_string(u));
+	bool checkEqual(const T & t, const U & u) {
+		return checkImpl([=] { return t == u; }, to_string(t) + " is not equal to " + to_string(u));
+	}
+
+	template <typename F>
+	bool checkNearEqual(F f1, F f2) {
+		return checkImpl([=] {
+			return std::abs(f2 - f1) <= detail::epsilon<F>();
+		}, to_string(f1) + " is not mostly equal to " + to_string(f2));
+	}
+	
+	template <typename F>
+	bool checkNotNearEqual(F f1, F f2) {
+		return checkImpl([=] {
+			return std::abs(f2 - f1) > detail::epsilon<F>();
+		}, to_string(f1) + " is not mostly equal to " + to_string(f2));
 	}
 	
 	template <typename T, typename U>
-	bool check_not_equal(const T & t, const U & u) {
+	bool checkNotEqual(const T & t, const U & u) {
 		return checkImpl([=] { return t != u; }, to_string(t) + " was expected to differ from " + to_string(u));
 	}
 
 	template <typename T, typename U>
-	bool check_gt(const T & t, const U & u) {
+	bool checkGT(const T & t, const U & u) {
 		return checkImpl([=] { return t > u; }, to_string(t) + " was expected to be greater than " + to_string(u));
 	}
 	
 	template <typename T, typename U>
-	bool check_ge(const T & t, const U & u) {
+	bool checkGE(const T & t, const U & u) {
 		return checkImpl([=] { return t >= u; }, to_string(t) + " was expected to be greater than or equal to " + to_string(u));
 	}
 
 	template <typename T, typename U>
-	bool check_lt(const T & t, const U & u) {
+	bool checkLT(const T & t, const U & u) {
 		return checkImpl([=] { return t < u; }, to_string(t) + " was expected to be less than " + to_string(u));
 	}
 	
 	template <typename T, typename U>
-	bool check_le(const T & t, const U & u) {
+	bool checkLE(const T & t, const U & u) {
 		return checkImpl([=] { return t <= u; }, to_string(t) + " was expected to be less than or equal to " + to_string(u));
 	}
 
 	// C-style string overloads
-	bool check_equal(const char * lhs, const char * rhs);
-	bool check_not_equal(const char * lhs, const char * rhs);
-	bool check_gt(const char * lhs, const char * rhs);
-	bool check_ge(const char * lhs, const char * rhs);
-	bool check_lt(const char * lhs, const char * rhs);
-	bool check_le(const char * lhs, const char * rhs);
+	bool checkEqual(const char * lhs, const char * rhs);
+	bool checkNotEqual(const char * lhs, const char * rhs);
+	bool checkGT(const char * lhs, const char * rhs);
+	bool checkGE(const char * lhs, const char * rhs);
+	bool checkLT(const char * lhs, const char * rhs);
+	bool checkLE(const char * lhs, const char * rhs);
 }
 
 
