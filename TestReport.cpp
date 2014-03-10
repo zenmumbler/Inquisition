@@ -58,9 +58,9 @@ namespace Inquisition {
 	void SimpleTestReport::pass(const std::string & msg, const std::string & innerMsg) {
 		checkIndex_++;
 		passes_++;
-		dest_ << "PASS (check #" << checkIndex_ << ") ";
-		printNameTree();
-		dest_ << msg << ' ' << innerMsg << '\n';
+//		dest_ << "PASS (check #" << checkIndex_ << ") ";
+//		printNameTree();
+//		dest_ << msg << ' ' << innerMsg << '\n';
 	}
 	
 	void SimpleTestReport::failure(const std::string & msg, const std::string & innerMsg) {
