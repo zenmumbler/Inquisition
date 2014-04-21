@@ -15,7 +15,7 @@ namespace Inquisition {
 	// floating point near-equality comparisons (kept high for operand result error)
 	namespace detail {
 		template <>
-		float epsilon<float>() { return 2.4e-7f; }
+		float epsilon<float>() { return 5.0e-7f; }
 		
 		template <>
 		double epsilon<double>() { return 2.22e-16; }

@@ -50,7 +50,7 @@ namespace Inquisition {
 	bool checkNotNearEqual(F f1, F f2) {
 		return checkImpl([=] {
 			return std::abs(f2 - f1) > detail::epsilon<F>();
-		}, to_string(f1) + " is not mostly equal to " + to_string(f2));
+		}, to_string(f1) + " is too similar to " + to_string(f2));
 	}
 	
 	template <typename T, typename U>
