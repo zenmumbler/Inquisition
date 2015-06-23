@@ -36,46 +36,46 @@ namespace Inquisition {
 	
 	template <typename T, typename U>
 	bool checkEqual(const T & t, const U & u) {
-		return checkImpl([=] { return t == u; }, to_string(t) + " is not equal to " + to_string(u));
+		return checkImpl([=] { return t == u; }, toString(t) + " is not equal to " + toString(u));
 	}
 
 	template <typename F>
 	bool checkNearEqual(F f1, F f2) {
 		return checkImpl([=] {
 			return std::abs(f2 - f1) <= detail::epsilon<F>();
-		}, to_string(f1) + " is not mostly equal to " + to_string(f2));
+		}, toString(f1) + " is not mostly equal to " + toString(f2));
 	}
 	
 	template <typename F>
 	bool checkNotNearEqual(F f1, F f2) {
 		return checkImpl([=] {
 			return std::abs(f2 - f1) > detail::epsilon<F>();
-		}, to_string(f1) + " is too similar to " + to_string(f2));
+		}, toString(f1) + " is too similar to " + toString(f2));
 	}
 	
 	template <typename T, typename U>
 	bool checkNotEqual(const T & t, const U & u) {
-		return checkImpl([=] { return t != u; }, to_string(t) + " was expected to differ from " + to_string(u));
+		return checkImpl([=] { return t != u; }, toString(t) + " was expected to differ from " + toString(u));
 	}
 
 	template <typename T, typename U>
 	bool checkGT(const T & t, const U & u) {
-		return checkImpl([=] { return t > u; }, to_string(t) + " was expected to be greater than " + to_string(u));
+		return checkImpl([=] { return t > u; }, toString(t) + " was expected to be greater than " + toString(u));
 	}
 	
 	template <typename T, typename U>
 	bool checkGE(const T & t, const U & u) {
-		return checkImpl([=] { return t >= u; }, to_string(t) + " was expected to be greater than or equal to " + to_string(u));
+		return checkImpl([=] { return t >= u; }, toString(t) + " was expected to be greater than or equal to " + toString(u));
 	}
 
 	template <typename T, typename U>
 	bool checkLT(const T & t, const U & u) {
-		return checkImpl([=] { return t < u; }, to_string(t) + " was expected to be less than " + to_string(u));
+		return checkImpl([=] { return t < u; }, toString(t) + " was expected to be less than " + toString(u));
 	}
 	
 	template <typename T, typename U>
 	bool checkLE(const T & t, const U & u) {
-		return checkImpl([=] { return t <= u; }, to_string(t) + " was expected to be less than or equal to " + to_string(u));
+		return checkImpl([=] { return t <= u; }, toString(t) + " was expected to be less than or equal to " + toString(u));
 	}
 
 	// C-style string overloads
