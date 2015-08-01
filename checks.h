@@ -34,6 +34,16 @@ namespace Inquisition {
 	bool checkTrue(bool expr);
 	bool checkFalse(bool expr);
 	
+	template <typename T>
+	bool checkNull(T* tp) {
+		return checkImpl([=] { return tp == nullptr; }, "expected a nullptr");
+	}
+	
+	template <typename T>
+	bool checkNonNull(T* tp) {
+		return checkImpl([=] { return tp != nullptr; }, "expected a valid pointer but was nullptr");
+	}
+	
 	template <typename T, typename U>
 	bool checkEqual(const T & t, const U & u) {
 		return checkImpl([=] { return t == u; }, toString(t) + " is not equal to " + toString(u));
